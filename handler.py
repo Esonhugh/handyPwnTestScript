@@ -9,9 +9,51 @@ timeout = 5
 prefix = bytes("OVERFLOW6 ",'latin-1')
 
 # pattern is used to seek Bad char in payload which can influence the shellcode
+# class orderGenerator
+# used as a char list generate
+class orderGenerator:
+    # class init func
+    # give a methodname
+    def __init__(self,method :str):
+        self.method = method
+        if   method == "source":
+            self.pattern = self.source
+        elif method == "order" :
+            self.pattern = self.order
+        elif method == "orderS":
+            self.pattern = self.specialOrder
+        elif method == "reverse":
+            self.pattern = self.reverse
+        else:
+            self.pattern = self.specialOrder
 
-orderedPattern = b''.join( [ bytes(chr(x),'latin-1') for x in range(0, 256) ] )
-reversePattern = b''.join([bytes(chr(x),'latin-1') for x in range(0,256)[::-1] ])
+    # source list [b'\x00',b'\x01', ...]
+    @property
+    def source(self):
+        return [ bytes(chr(x),'latin-1') for x in range(0,256) ]
+
+    # order one like b'\x00\x01\x02\x03...'
+    @property
+    def order(self):
+        return b''.join(self.source)
+
+    # order special one like b'\x01\x02\x03...\xff\x00'
+    @property
+    def specialOrder(self):
+        return self.order[1:] + b'\x00'
+
+    # reverse order like b'\xff\xfe\xfd...\x00'
+    @property
+    def reverse(self):
+        return self.order[::-1]
+
+    # used like easy print
+    def __str__(self):
+        return self.pattern
+    def __repr__(self):
+        return self.pattern
+
+
 """ 
 orderPattern = b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n'\
           b'\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15' \
